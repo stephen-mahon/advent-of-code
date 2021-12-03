@@ -16,7 +16,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not read %s: %v", *fileName, err)
 	}
-	fmt.Println(incCount(depths))
+
+	fmt.Println("Part 1:", incCount(depths))
+	vals := slidingWindow(depths)
+	sum3depths := sum3s(vals)
+	fmt.Println("Part 2:", incCount(sum3depths))
 }
 
 func readData(path string) (vals []float64, err error) {
@@ -50,4 +54,22 @@ func incCount(vals []float64) int {
 		}
 	}
 	return count
+}
+
+func slidingWindow(vals []float64) (threes [][]float64) {
+	for i := 2; i < len(vals); i++ {
+		threes = append(threes, []float64{vals[i-2], vals[i-1], vals[i]})
+	}
+	return threes
+}
+
+func sum3s(threes [][]float64) (vals []float64) {
+	for i := range threes {
+		var sum float64 = 0
+		for j := range threes[i] {
+			sum += threes[i][j]
+		}
+		vals = append(vals, sum)
+	}
+	return vals
 }
