@@ -15,8 +15,8 @@ type cmds struct {
 
 type pos struct {
 	h float64 // horizontal
-	d float64 // horizontal * aim
-	a float64 // aim = depth
+	d float64 // Part 1: depth, Part 2: horizontal * aim
+	a float64 // Part 2: aim = depth
 }
 
 func main() {
