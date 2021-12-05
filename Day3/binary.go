@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -17,7 +19,17 @@ func main() {
 		log.Fatalf("could not read %s: %v", *fileName, err)
 	}
 
-	bits(vals)
+	gamma, err := bits(vals)
+	if err != nil {
+		log.Fatalf("could not convert vals to binary: %v", err)
+	}
+
+	epilson, err := binaryInvert(gamma)
+	if err != nil {
+		log.Fatalf("could not convert vals to binary: %v", err)
+	}
+
+	fmt.Printf("Part 1\ngamma: %v\nepilson: %v\nPower consumption: %v\n", gamma, epilson, gamma*epilson)
 }
 
 func readData(path string) (vals []string, err error) {
@@ -43,6 +55,42 @@ func readData(path string) (vals []string, err error) {
 	return vals, nil
 }
 
-func bits(vals []string) {
+func bits(vals []string) (int, error) {
+	var sigB string
+	for i := 0; i < len(vals[0]); i++ {
+		bin := ""
+		for _, val := range vals {
+			bin += string(val[i])
+		}
+		if strings.Count(bin, "0") > strings.Count(bin, "1") {
+			sigB += "0"
+		} else {
+			sigB += "1"
+		}
+	}
 
+	output, err := strconv.ParseInt(sigB, 2, 64)
+	if err != nil {
+		fmt.Println(err)
+		return -1, err
+	}
+	return int(output), nil
+}
+
+func binaryInvert(input int) (int, error) {
+	val := strconv.FormatInt(int64(input), 2)
+	var invBin string
+	for _, v := range val {
+		if string(v) == "0" {
+			invBin += "1"
+		} else {
+			invBin += "0"
+		}
+	}
+	output, err := strconv.ParseInt(invBin, 2, 64)
+	if err != nil {
+		fmt.Println(err)
+		return -1, err
+	}
+	return int(output), nil
 }
