@@ -10,8 +10,11 @@ import (
 	"strings"
 )
 
+// add bits func back into oxygenscrubber for new version of gamma based on remaining vals.
+// rework gamma func to return consistent types for new functions. Maybe just a string of binary numbers and do the conversion in main()
+
 func main() {
-	fileName := flag.String("f", "input.txt", "input file name")
+	fileName := flag.String("f", "test.txt", "input file name")
 	flag.Parse()
 
 	vals, err := readData(*fileName)
@@ -30,6 +33,8 @@ func main() {
 	}
 
 	fmt.Printf("Part 1\ngamma: %v\nepilson: %v\nPower consumption: %v\n", gamma, epilson, gamma*epilson)
+
+	fmt.Println(oxygenRating(vals, gamma))
 }
 
 func readData(path string) (vals []string, err error) {
@@ -62,10 +67,10 @@ func bits(vals []string) (int, error) {
 		for _, val := range vals {
 			bin += string(val[i])
 		}
-		if strings.Count(bin, "0") > strings.Count(bin, "1") {
-			sigB += "0"
-		} else {
+		if condition(bin) {
 			sigB += "1"
+		} else {
+			sigB += "0"
 		}
 	}
 
@@ -75,6 +80,10 @@ func bits(vals []string) (int, error) {
 		return -1, err
 	}
 	return int(output), nil
+}
+
+func condition(bin string) bool {
+	return strings.Count(bin, "1") >= strings.Count(bin, "0")
 }
 
 func binaryInvert(input int) (int, error) {
@@ -93,4 +102,34 @@ func binaryInvert(input int) (int, error) {
 		return -1, err
 	}
 	return int(output), nil
+}
+
+func oxygenRating(vals []string, gammaInt int) (int, error) {
+
+	gamma := strconv.FormatInt(int64(gammaInt), 2)
+
+	for i := range gamma {
+		tmp := []string{}
+		for j := range vals {
+			if gamma[i] == vals[j][i] {
+				tmp = append(tmp, vals[j])
+			}
+		}
+		vals = tmp
+		if len(vals) == 1 {
+			break
+		}
+		gamma, _ = bits(vals)
+		if err != nil {
+			log.Fatalf("could not convert vals to binary: %v", err)
+		}
+	}
+	fmt.Println(vals)
+	output, err := strconv.ParseInt(vals[0], 2, 64)
+	if err != nil {
+		fmt.Println(err)
+		return -1, err
+	}
+	return int(output), nil
+
 }
