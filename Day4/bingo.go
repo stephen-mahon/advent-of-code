@@ -34,12 +34,19 @@ func main() {
 		log.Fatalf("could not convert bingo tables: %v\n", err)
 	}
 
+	booltables := boolBingo(tables)
+
 	fmt.Printf("%v\n\n", readout)
-	for i := range tables {
-		for j := range tables[i] {
-			fmt.Println(tables[i][j])
+
+	for i := range readout {
+		booltables = boolCheck(readout[i], tables, booltables)
+		fmt.Printf("%v, ", readout[i])
+		check, val := bingoCheck(booltables)
+		if check {
+			fmt.Println()
+			fmt.Println(tables[val])
+			break
 		}
-		fmt.Println()
 	}
 
 }
@@ -94,4 +101,62 @@ func bingoBoard(input []string) (bingo [][][]int, err error) {
 		}
 	}
 	return bingo, nil
+}
+
+func boolLine(input []int) []bool {
+	return make([]bool, len(input))
+}
+
+func boolBingo(input [][][]int) (bingo [][][]bool) {
+	var matrix [][]bool
+	for i := range input {
+		for j := range input[i] {
+			matrix = append(matrix, boolLine(input[i][j]))
+		}
+		bingo = append(bingo, matrix)
+		matrix = [][]bool{}
+	}
+
+	return bingo
+}
+
+func printTables(ints [][][]int, bools [][][]bool) {
+	for i := range ints {
+		for j := range ints[i] {
+			fmt.Println(ints[i][j])
+		}
+		for j := range bools[i] {
+			fmt.Println(bools[i][j])
+		}
+		fmt.Println()
+	}
+}
+
+func boolCheck(check int, ints [][][]int, bools [][][]bool) [][][]bool {
+	for i := range ints {
+		for j := range ints[i] {
+			for k := range ints[i][j] {
+				if ints[i][j][k] == check {
+					bools[i][j][k] = true
+				}
+			}
+		}
+	}
+	return bools
+}
+
+func bingoCheck(bools [][][]bool) (bingo bool, i int) {
+
+	for i := range bools {
+		for j := range bools[i] {
+			bingo = true
+			for k := range bools[i][j] {
+				bingo = bingo && bools[i][j][k]
+			}
+			if bingo == true {
+				return bingo, i
+			}
+		}
+	}
+	return false, -1
 }
