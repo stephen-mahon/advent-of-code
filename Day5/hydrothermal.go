@@ -16,18 +16,20 @@ type coor struct {
 
 func main() {
 	fmt.Println(title)
-	data, _ := readFile("test.txt")
+	data, _ := readFile("input.txt")
 
-	for _, v := range data {
-		fmt.Printf("%v,%v -> %v,%v ", v.x1, v.y1, v.x2, v.y2)
-		if v.x1 == v.x2 {
-			fmt.Printf("move y %v", v.y2-v.y1)
-		} else if v.y1 == v.y2 {
-			fmt.Printf("move x %v", v.x2-v.x1)
+	board := [999][999]int{}
+
+	board = drawLine(data, board)
+	var count int
+	for i := range board {
+		for j := range board[i] {
+			if board[i][j] > 1 {
+				count += 1
+			}
 		}
-		fmt.Println()
 	}
-
+	fmt.Println(count)
 }
 
 func readFile(path string) (data []coor, err error) {
@@ -52,4 +54,33 @@ func readFile(path string) (data []coor, err error) {
 		return nil, fmt.Errorf("could not scan: %v", err)
 	}
 	return data, nil
+}
+
+func drawLine(data []coor, board [999][999]int) [999][999]int {
+	for _, v := range data {
+		if v.x1 == v.x2 {
+			for y := min(v.y1, v.y2); y <= max(v.y1, v.y2); y++ {
+				board[v.x1][y] += 1
+			}
+		} else if v.y1 == v.y2 {
+			for x := min(v.x1, v.x2); x <= max(v.x1, v.x2); x++ {
+				board[x][v.y1] += 1
+			}
+		}
+	}
+	return board
+}
+
+func min(a, b int) int {
+	if a > b {
+		return b
+	}
+	return a
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
