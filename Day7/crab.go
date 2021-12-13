@@ -20,7 +20,7 @@ func main() {
 		log.Fatalf("could not read input file: %v", err)
 	}
 	med := median(data)
-	fmt.Println(data, med)
+	//fmt.Println(data, med)
 	var fuelTotal float64
 	for _, v := range data {
 		fuelTotal += math.Abs(float64(v - med))
