@@ -9,6 +9,7 @@ var title = "Day 8: Seven Segment Search"
 
 func main() {
 	fmt.Println(title)
+	display()
 }
 
 func strBin(num int) string {
@@ -69,4 +70,14 @@ func segLU(seg string) (int, error) {
 		return -1, fmt.Errorf("not a valid seven segment sequence: %v", seg)
 
 	}
+}
+
+func display() {
+	fmt.Printf(" aaaa \n")
+	fmt.Printf("b    c\n")
+	fmt.Printf("b    c\n")
+	fmt.Printf(" dddd \n")
+	fmt.Printf("e    f\n")
+	fmt.Printf("d    f\n")
+	fmt.Printf(" gggg \n")
 }
