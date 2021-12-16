@@ -66,6 +66,8 @@ func drawLine(data []coor, board [999][999]int) [999][999]int {
 			for x := min(v.x1, v.x2); x <= max(v.x1, v.x2); x++ {
 				board[x][v.y1] += 1
 			}
+		} else if true {
+			//diagonals here
 		}
 	}
 	return board
