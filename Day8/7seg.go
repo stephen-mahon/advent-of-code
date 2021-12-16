@@ -21,13 +21,24 @@ var digit = " aaaa \n" +
 
 func main() {
 	fmt.Println(title)
-	data, err := readFile("test.txt")
+	data, err := readFile("input.txt")
 	if err != nil {
 		log.Fatalf("could not read input file: %v", err)
 	}
+	var count int
 	for _, v := range data {
-		fmt.Println(v)
+		if len(v) == 2 {
+			count++
+		} else if len(v) == 4 {
+			count++
+		} else if len(v) == 3 {
+			count++
+		} else if len(v) == 7 {
+			count++
+		}
 	}
+	fmt.Println(count)
+
 }
 
 func readFile(path string) (data []string, err error) {
@@ -39,8 +50,9 @@ func readFile(path string) (data []string, err error) {
 
 	s := bufio.NewScanner(f)
 	for s.Scan() {
-		dataStr := strings.Split(s.Text(), " ")
-		for _, v := range dataStr {
+		splitStr := strings.SplitAfter(s.Text(), " | ")
+		combos := strings.Split(splitStr[1], " ")
+		for _, v := range combos {
 			data = append(data, v)
 		}
 	}
