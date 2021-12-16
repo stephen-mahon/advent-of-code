@@ -1,15 +1,51 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
+	"os"
 	"strconv"
+	"strings"
 )
 
 var title = "Day 8: Seven Segment Search"
 
+var digit = " aaaa \n" +
+	"b    c\n" +
+	"b    c\n" +
+	" dddd \n" +
+	"e    f\n" +
+	"d    f\n" +
+	" gggg "
+
 func main() {
 	fmt.Println(title)
-	display()
+	data, err := readFile("test.txt")
+	if err != nil {
+		log.Fatalf("could not read input file: %v", err)
+	}
+	for _, v := range data {
+		fmt.Println(v)
+	}
+}
+
+func readFile(path string) (data []string, err error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	s := bufio.NewScanner(f)
+	for s.Scan() {
+		dataStr := strings.Split(s.Text(), " ")
+		for _, v := range dataStr {
+			data = append(data, v)
+		}
+	}
+
+	return data, nil
 }
 
 func strBin(num int) string {
@@ -72,12 +108,18 @@ func segLU(seg string) (int, error) {
 	}
 }
 
-func display() {
-	fmt.Printf(" aaaa \n")
-	fmt.Printf("b    c\n")
-	fmt.Printf("b    c\n")
-	fmt.Printf(" dddd \n")
-	fmt.Printf("e    f\n")
-	fmt.Printf("d    f\n")
-	fmt.Printf(" gggg \n")
+func display(seg string) (string, error) {
+	_, err := segLU(seg)
+	if err != nil {
+		return "", err
+	}
+	var num string
+	for _, v := range digit {
+		if strings.ContainsAny(string(v), seg) || strings.ContainsAny(string(v), " \n") {
+			num += fmt.Sprint(string(v))
+		} else {
+			num += fmt.Sprint(".")
+		}
+	}
+	return num, nil
 }
