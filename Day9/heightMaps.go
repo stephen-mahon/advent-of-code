@@ -12,13 +12,14 @@ var title = "--- Day 9: Smoke Basin ---"
 
 func main() {
 	fmt.Println(title)
-	fileName := "input.txt"
+	fileName := "test.txt"
 	data, err := readFile(fileName)
 	if err != nil {
 		log.Fatalf("could not read file %q: %v", fileName, err)
 	}
 
 	truths := lowVals(data)
+	printMap(data, truths)
 	fmt.Println(sumHightMap(data, truths))
 
 }
@@ -139,4 +140,17 @@ func sumHightMap(data [][]int, truths [][]bool) int {
 		}
 	}
 	return count
+}
+
+func printMap(data [][]int, truths [][]bool) {
+	for i := range truths {
+		for j := range truths[i] {
+			if truths[i][j] {
+				fmt.Printf("%v ", data[i][j])
+			} else {
+				fmt.Print("* ")
+			}
+		}
+		fmt.Println()
+	}
 }
