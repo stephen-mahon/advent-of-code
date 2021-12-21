@@ -5,23 +5,36 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 var title = "--- Day 10: Syntax Scoring ---"
+var brackerOpen = "([{<"
 
 func main() {
 	fmt.Println(title)
-	fileName := "test.txt"
+	fileName := "input.txt"
 	data, err := readFile(fileName)
 	if err != nil {
 		log.Fatalf("could not read file %q: %v", fileName, err)
 	}
 	var score int
 	for i := range data {
-		fmt.Println(len(data[i]), data[i])
+		stack := []string{}
+		for j := 0; j < len(data[i]); j++ {
+			if strings.ContainsAny(data[i][j], "({[<") {
+				stack = append(stack, data[i][j])
+			} else if data[i][j] == chunkSwitch(string(stack[len(stack)-1])) {
+				stack = stack[:len(stack)-1]
+			} else {
+				log.Printf("Ln %v, Col %v - Expected: `%v`, but found `%v` instead\n", i, j, chunkSwitch(stack[len(stack)-1]), data[i][j])
+				score += chunkScore(data[i][j])
+				break
+			}
+		}
 	}
-
 	fmt.Println("Score:", score)
+
 }
 
 func readFile(path string) (data [][]string, err error) {
@@ -41,14 +54,22 @@ func readFile(path string) (data [][]string, err error) {
 	return data, nil
 }
 
-func chunkEnd(v string) string {
+func chunkSwitch(v string) string {
 	switch v {
+	case ")":
+		return "("
 	case "(":
 		return ")"
+	case "]":
+		return "["
 	case "[":
 		return "]"
+	case "}":
+		return "{"
 	case "{":
 		return "}"
+	case ">":
+		return "<"
 	case "<":
 		return ">"
 	default:
