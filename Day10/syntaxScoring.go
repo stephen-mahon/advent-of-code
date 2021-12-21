@@ -9,7 +9,7 @@ import (
 )
 
 var title = "--- Day 10: Syntax Scoring ---"
-var brackerOpen = "([{<"
+var bracketOpen = "([{<"
 
 func main() {
 	fmt.Println(title)
@@ -22,7 +22,7 @@ func main() {
 	for i := range data {
 		stack := []string{}
 		for j := 0; j < len(data[i]); j++ {
-			if strings.ContainsAny(data[i][j], "({[<") {
+			if strings.ContainsAny(data[i][j], bracketOpen) {
 				stack = append(stack, data[i][j])
 			} else if data[i][j] == chunkSwitch(string(stack[len(stack)-1])) {
 				stack = stack[:len(stack)-1]
@@ -34,7 +34,6 @@ func main() {
 		}
 	}
 	fmt.Println("Score:", score)
-
 }
 
 func readFile(path string) (data [][]string, err error) {
