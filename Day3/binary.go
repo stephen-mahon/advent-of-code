@@ -8,26 +8,17 @@ import (
 	"strconv"
 )
 
-// add bits func back into oxygenscrubber for new version of gamma based on remaining vals.
-// rework gamma func to return consistent types for new functions. Maybe just a string of binary numbers and do the conversion in main()
-
 func main() {
-	fileName := "input.txt"
+	fileName := "test.txt"
 
 	vals, err := readData(fileName)
 	if err != nil {
 		log.Fatalf("could not read %s: %v", fileName, err)
 	}
-	bits := make([][]string, len(vals[0]))
-	for i := range vals {
-		for j := range vals[i] {
-			bits[j] = append(bits[j], string(vals[i][j]))
-		}
-	}
-
+	bits := bitSeg(vals)
 	gamma, _ := readGamma(bits)
 	epsilon, _ := readEpsilon(bits)
-	fmt.Println(gamma * epsilon)
+	fmt.Println("Part 1:", gamma*epsilon)
 
 }
 
@@ -52,6 +43,16 @@ func readData(path string) (vals []string, err error) {
 		return nil, fmt.Errorf("could not scan: %v", err)
 	}
 	return vals, nil
+}
+
+func bitSeg(vals []string) [][]string {
+	bits := make([][]string, len(vals[0]))
+	for i := range vals {
+		for j := range vals[i] {
+			bits[j] = append(bits[j], string(vals[i][j]))
+		}
+	}
+	return bits
 }
 
 func cannonize(vals []string) map[string]int {
