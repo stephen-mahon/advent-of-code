@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -19,6 +20,7 @@ func main() {
 	gamma, _ := readGamma(bits)
 	epsilon, _ := readEpsilon(bits)
 	fmt.Println("Part 1:", gamma*epsilon)
+	bitCriteria(bits)
 
 }
 
@@ -87,4 +89,14 @@ func readEpsilon(bits [][]string) (int64, error) {
 		}
 	}
 	return strconv.ParseInt(bit, 2, 64)
+}
+
+func bitCriteria(bits [][]string) {
+	for i := range bits {
+		bit := ""
+		for j := range bits[i] {
+			bit += bits[i][j]
+		}
+		fmt.Println(bit, "0s:", strings.Count(bit, "0"), "1s:", strings.Count(bit, "1"))
+	}
 }
