@@ -18,9 +18,21 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not read file %q: %v", fileName, err)
 	}
-	_ = part2(data)
+	stacks := part2(data)
+	for i := range stacks {
+		//for i := 9; i < 10; i++ {
+		score := 0
+		for j := len(stacks[i]) - 1; j >= 0; j-- {
+			closer := chunkSwitch(stacks[i][j])
+			score = (5 * score) + chunkScore2(closer)
+		}
+		fmt.Println(score)
+	}
 }
 
+// Some problem here with breaking from data.
+// Adding to the stack when there is corrupted line.
+// Probably with the break - only breaking from the inner loop (j) and not the outter (i)
 func part2(data [][]string) [][]string {
 	var lines [][]string
 	var stacks [][]string
@@ -37,12 +49,9 @@ func part2(data [][]string) [][]string {
 		}
 		lines = append(lines, data[i])
 		stacks = append(stacks, stack)
+		fmt.Printf("%v: %v - \"%v\"\n", i, data[i], stack)
 	}
-
-	for i := range lines {
-		fmt.Printf("Line: %v\n\t%v\n\t%v\n", i, lines[i], stacks[i])
-	}
-	return lines
+	return stacks
 }
 
 func part1(data [][]string) string {
@@ -114,6 +123,21 @@ func chunkScore(v string) int {
 		return 1197
 	case ">":
 		return 25137
+	default:
+		return 0
+	}
+}
+
+func chunkScore2(v string) int {
+	switch v {
+	case ")":
+		return 1
+	case "]":
+		return 2
+	case "}":
+		return 3
+	case ">":
+		return 4
 	default:
 		return 0
 	}
