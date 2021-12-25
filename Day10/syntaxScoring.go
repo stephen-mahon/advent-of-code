@@ -13,11 +13,39 @@ var bracketOpen = "([{<"
 
 func main() {
 	fmt.Println(title)
-	fileName := "input.txt"
+	fileName := "test.txt"
 	data, err := readFile(fileName)
 	if err != nil {
 		log.Fatalf("could not read file %q: %v", fileName, err)
 	}
+	_ = part2(data)
+}
+
+func part2(data [][]string) [][]string {
+	var lines [][]string
+	var stacks [][]string
+	for i := range data {
+		stack := []string{}
+		for j := 0; j < len(data[i]); j++ {
+			if strings.ContainsAny(data[i][j], bracketOpen) {
+				stack = append(stack, data[i][j])
+			} else if data[i][j] == chunkSwitch(string(stack[len(stack)-1])) {
+				stack = stack[:len(stack)-1]
+			} else {
+				break
+			}
+		}
+		lines = append(lines, data[i])
+		stacks = append(stacks, stack)
+	}
+
+	for i := range lines {
+		fmt.Printf("Line: %v\n\t%v\n\t%v\n", i, lines[i], stacks[i])
+	}
+	return lines
+}
+
+func part1(data [][]string) string {
 	var score int
 	for i := range data {
 		stack := []string{}
@@ -33,7 +61,7 @@ func main() {
 			}
 		}
 	}
-	fmt.Println("Score:", score)
+	return fmt.Sprintf("Score: %v", score)
 }
 
 func readFile(path string) (data [][]string, err error) {
