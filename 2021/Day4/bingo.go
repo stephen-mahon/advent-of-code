@@ -3,9 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -15,52 +13,32 @@ func main() {
 	fmt.Println(title)
 	file, _ := readFile("test.txt")
 
-	draw := strings.Split(file[0], ",")
-	readout, err := strToInt(draw)
-	if err != nil {
-		log.Fatalf("could not read first line of input file: %v\n", err)
-	}
-
-	file = file[1:]
-	var bingoData []string
-	for i := range file {
-		if file[i] != "" {
-			bingoData = append(bingoData, file[i])
-		}
-	}
-
-	tables, err := bingoBoard(bingoData)
-	if err != nil {
-		log.Fatalf("could not convert bingo tables: %v\n", err)
-	}
-
-	booltables := boolBingo(tables)
-
-	fmt.Printf("%v\n\n", readout)
+	readout := strings.Split(file[0], ",")
 
 	for i := range readout {
-		booltables = boolCheck(readout[i], tables, booltables)
-		fmt.Printf("%v, ", readout[i])
-		check, val := bingoCheck(booltables)
-		if check {
-			fmt.Println()
-			fmt.Println(tables[val])
-			break
-		}
+		fmt.Printf("%s ", readout[i])
 	}
+	fmt.Println()
 
-}
+	boards := bingoBoard(file[2:])
 
-func strToInt(vals []string) ([]int, error) {
-	var draw []int
-	for i := range vals {
-		val, err := strconv.Atoi(vals[i])
-		if err != nil {
-			return nil, err
+	fmt.Println(boards)
+
+	var boolBoards [][][]bool
+	var line [][]bool
+	var val []bool
+	for i := range boards {
+		for j := range boards[i] {
+			for k := range boards[i][j] {
+				_ = k
+				val = append(val, false)
+			}
+			line = append(line, val)
+			val = []bool{}
 		}
-		draw = append(draw, val)
+		boolBoards = append(boolBoards, line)
+		line = [][]bool{}
 	}
-	return draw, nil
 }
 
 func readFile(path string) (vals []string, err error) {
@@ -80,83 +58,29 @@ func readFile(path string) (vals []string, err error) {
 	return vals, nil
 }
 
-func bingoBoard(input []string) (bingo [][][]int, err error) {
-	var matrix [][]int
-	for i := range input {
-		var vals []int
-		line := strings.Split(input[i], " ")
-		for j := range line {
-			if line[j] != "" {
-				val, err := strconv.Atoi(line[j])
-				if err != nil {
-					return nil, err
-				}
-				vals = append(vals, val)
-			}
-		}
-		matrix = append(matrix, vals)
-		if (i+1)%5 == 0 {
-			bingo = append(bingo, matrix)
-			matrix = [][]int{}
-		}
-	}
-	return bingo, nil
-}
+func bingoBoard(boards []string) [][][]string {
 
-func boolLine(input []int) []bool {
-	return make([]bool, len(input))
-}
+	var bingoTables [][][]string
+	var line [][]string
+	var num []string
 
-func boolBingo(input [][][]int) (bingo [][][]bool) {
-	var matrix [][]bool
-	for i := range input {
-		for j := range input[i] {
-			matrix = append(matrix, boolLine(input[i][j]))
-		}
-		bingo = append(bingo, matrix)
-		matrix = [][]bool{}
-	}
+	for i := range boards {
+		ln := strings.Split(boards[i], " ")
 
-	return bingo
-}
-
-func printTables(ints [][][]int, bools [][][]bool) {
-	for i := range ints {
-		for j := range ints[i] {
-			fmt.Println(ints[i][j])
-		}
-		for j := range bools[i] {
-			fmt.Println(bools[i][j])
-		}
-		fmt.Println()
-	}
-}
-
-func boolCheck(check int, ints [][][]int, bools [][][]bool) [][][]bool {
-	for i := range ints {
-		for j := range ints[i] {
-			for k := range ints[i][j] {
-				if ints[i][j][k] == check {
-					bools[i][j][k] = true
+		if len(ln) > 1 {
+			num = []string{}
+			for j := range ln {
+				if ln[j] != "" {
+					num = append(num, ln[j])
 				}
 			}
+			line = append(line, num)
+		} else {
+			bingoTables = append(bingoTables, line)
+			line = [][]string{}
 		}
 	}
-	return bools
-}
+	bingoTables = append(bingoTables, line)
 
-func bingoCheck(bools [][][]bool) (bingo bool, i int) {
-
-	for i := range bools {
-		for j := range bools[i] {
-			bingo = true
-			for k := range bools[i][j] {
-				bingo = bingo && bools[i][j][k]
-			}
-			if bingo == true {
-				return bingo, i
-			}
-		}
-	}
-	return false, -1
+	return bingoTables
 }
