@@ -29,7 +29,7 @@ func main() {
 
 func readCalories(path string) (vals [][]float64, err error) {
 
-	dat, err := os.Open(path)
+	dat, err := os.Open("..\\data\\" + path)
 	if err != nil {
 		return nil, err
 	}
