@@ -29,16 +29,16 @@ func main() {
 		line := strings.Split(v, " ")
 
 		if line[1] == "cd" {
-			if line[2] == ".." { // if we change directory, pop back one step,
+			if line[2] == ".." { // if change directory, pop back one step
 				_, path = pop(path)
 			} else { // else add the new dir to the path
 				path = append(path, line[2])
 			}
 		} else { // ls lists files and dir in current dir
 			// "fileSize fileName"
-			s, err := strconv.Atoi(line[0]) // string convert to get the file size in the first string
+			s, err := strconv.Atoi(line[0]) // string convert to get the file size
 			if err == nil {                 // some of the lines won't contain a number so the err will catch that
-				// add this files size to the map
+				// add this files size to the map *tricky*
 				for i := 1; i < len(path)+1; i++ {
 					addr := strings.Join(path[:i], "/")
 					// add file size to current dir size and the size of all parents
