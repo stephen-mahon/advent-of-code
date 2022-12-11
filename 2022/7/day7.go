@@ -54,7 +54,8 @@ func main() {
 
 	var part1 int
 	part2 := math.MaxInt64 // creates a large int
-	for _, v := range files {
+	for i, v := range files {
+		fmt.Println(i, v)
 		if v <= 100000 {
 			part1 += v
 		}
