@@ -12,7 +12,6 @@ import (
 
 type monkey struct {
 	num        int
-	items      []int
 	operation  string
 	test       int
 	condition1 int
@@ -21,6 +20,9 @@ type monkey struct {
 
 func main() {
 	fileName := flag.String("f", "test.txt", "input file name")
+	worryLevel := flag.Int("w", 3, "worry level")
+	rounds := flag.Int("r", 20, "number of rounds")
+
 	flag.Parse()
 
 	input, err := read(*fileName)
@@ -29,24 +31,26 @@ func main() {
 	}
 
 	var monkeys []monkey
-	var items []int
+	var items [][]int
 
 	for i := range input {
 		line := strings.Split(input[i], " ")
 
 		if line[0] == "Monkey" {
-			items = []int{}
+			itemList := []int{}
 			num, _ := strconv.Atoi(string(line[1][0]))
 			si := strings.Split(input[i+1], ", ")
 			for i := range si {
 				if i == 0 {
 					item, _ := strconv.Atoi(string(si[i][18:]))
-					items = append(items, item)
+					itemList = append(itemList, item)
 				} else {
 					item, _ := strconv.Atoi(string(si[i]))
-					items = append(items, item)
+					itemList = append(itemList, item)
 				}
 			}
+
+			items = append(items, itemList)
 
 			operation := input[i+2][19:]
 			test, _ := strconv.Atoi(input[i+3][21:])
@@ -54,45 +58,58 @@ func main() {
 			condition1, _ := strconv.Atoi(string(lineC1[len(lineC1)-1]))
 			lineC2 := strings.Split(input[i+5], " ")
 			condition2, _ := strconv.Atoi(string(lineC2[len(lineC2)-1]))
-			monkeys = append(monkeys, monkey{num, items, operation, test, condition1, condition2})
+			monkeys = append(monkeys, monkey{num, operation, test, condition1, condition2})
 		}
 	}
 
-	for i := range monkeys {
-		fmt.Println(monkeys[i].num, monkeys[i].items)
+	inspections := make([]int, len(monkeys))
+	for i := 0; i < *rounds; i++ {
+		inspections = monkeyBusiness(monkeys, inspections, items, *worryLevel)
 	}
-	fmt.Println()
 
-	for _, v := range monkeys {
-		for len(v.items) != 0 {
-			var headItem int
-			headItem, v.items = v.head()
-			item := operation(v.operation, headItem) / 3
-			fmt.Println(v.num, v.items)
+	fmt.Printf("== After round %v ==\n", *rounds)
+	for i := range inspections {
+		fmt.Printf("Monkey %v inspected items %v times\n", i, inspections[i])
+	}
+
+	bubbleSort(inspections)
+	fmt.Println(inspections[0] * inspections[1])
+
+}
+
+func monkeyBusiness(monkeys []monkey, inspections []int, items [][]int, worryLevel int) []int {
+	for i, v := range monkeys {
+		for len(items[i]) != 0 {
+			head := items[i][0]
+			items[i] = items[i][1:]
+			item := operation(v.operation, head) / worryLevel
+			inspections[i]++
+
 			if item%v.test == 0 {
-				fmt.Printf("    %v (%v) -> monkey #%v\n", headItem, item, monkeys[v.condition1].num)
-				monkeys[v.condition1].addItem(item)
+				items[v.condition1] = append(items[v.condition1], item)
 			} else {
-				fmt.Printf("    %v (%v) -> monkey #%v\n", headItem, item, monkeys[v.condition2].num)
-				monkeys[v.condition2].addItem(item)
+				items[v.condition2] = append(items[v.condition2], item)
 			}
 		}
-		fmt.Println()
 	}
 
-	for i := range monkeys {
-		fmt.Println(monkeys[i].num, monkeys[i].items)
+	return inspections
+}
+
+func swap(xp, yp *int) {
+	temp := *xp
+	*xp = *yp
+	*yp = temp
+}
+
+func bubbleSort(arr []int) {
+	for i := 0; i < len(arr); i++ {
+		for j := 0; j < len(arr)-1; j++ {
+			if arr[j] < arr[j+1] {
+				swap(&arr[j], &arr[j+1])
+			}
+		}
 	}
-	fmt.Println()
-}
-
-func (m *monkey) head() (int, []int) {
-	return m.items[0], m.items[1:]
-}
-
-func (m *monkey) addItem(item int) []int {
-	m.items = append(m.items, item)
-	return m.items
 }
 
 func operation(line string, n int) int {
@@ -110,7 +127,7 @@ func operation(line string, n int) int {
 		if err == nil {
 			return n - val
 		}
-		return n - n
+		return 0
 	case "*":
 		val, err := strconv.Atoi(lineSplit[2])
 		if err == nil {
