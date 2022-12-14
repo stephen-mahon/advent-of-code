@@ -10,16 +10,6 @@ import (
 	"strings"
 )
 
-const cols = 10
-const rows = 10
-
-type cell struct {
-	i    int
-	j    int
-	rock bool
-	sand bool
-}
-
 func main() {
 	fileName := flag.String("f", "test.txt", "input file name")
 	flag.Parse()
@@ -29,57 +19,177 @@ func main() {
 		log.Fatalf("could not read %s: %v", *fileName, err)
 	}
 
-	grid := make([]cell, rows*cols)
+	max_x := 0
+	max_y := 0
+	min_x := 10000
+
 	for j := range input {
 		rockLine := parse(input[j])
-		for i := 0; i < len(rockLine)-1; i++ {
-			x1 := rockLine[i][0] - 494
-			y1 := rockLine[i][1]
-			x2 := rockLine[i+1][0] - 494
-			y2 := rockLine[i+1][1]
+		for i := range rockLine {
+			//fmt.Println(rockLine[i])
+			max_x = max(max_x, rockLine[i][0])
+			min_x = min(min_x, rockLine[i][0])
+			max_y = max(max_y, rockLine[i][1])
+		}
+	}
+
+	cols := 1 + max_x - min_x
+	rows := 2 + max_y
+	rocks := make([]bool, (cols)*(rows))
+
+	for j := range input {
+		corners := parse(input[j])
+		for i := 0; i < len(corners)-1; i++ {
+			x1 := corners[i][0] - min_x
+			y1 := corners[i][1]
+			x2 := corners[i+1][0] - min_x
+			y2 := corners[i+1][1]
 
 			if y1 == y2 {
 				for k := min(x1, x2); k <= max(x1, x2); k++ {
-					grid[k+y1*cols].rock = true
+					rocks[k+y1*cols] = true
 				}
 			} else {
 				for k := min(y1, y2); k <= max(y1, y2); k++ {
-					grid[x1+k*cols].rock = true
+					rocks[x1+k*cols] = true
 				}
 			}
 
 		}
 	}
 
-	x := 6
-	y := 0
-
-	n := 0
-	for n < 10 {
-		current := x + (y+n)*cols
-		grid[current].sand = true
-		draw(grid)
-		grid[current].sand = false
-		n++
+	part1 := 0
+	sand := rocks
+	fin := true
+	for fin {
+		fin = hourglass(sand, min_x, max_y, cols)
+		if !fin {
+			break
+		}
+		part1++
 	}
+
+	fmt.Println("Part 1:", part1)
+
+	// part 2
+
+	cols = max_x * 2
+	rows = 2 + max_y
+	rocks = make([]bool, (cols)*(rows))
+
+	for j := range input {
+		corners := parse(input[j])
+		for i := 0; i < len(corners)-1; i++ {
+			x1 := corners[i][0] - min_x
+			y1 := corners[i][1]
+			x2 := corners[i+1][0] - min_x
+			y2 := corners[i+1][1]
+
+			if y1 == y2 {
+				for k := min(x1, x2); k <= max(x1, x2); k++ {
+					rocks[k+y1*cols] = true
+				}
+			} else {
+				for k := min(y1, y2); k <= max(y1, y2); k++ {
+					rocks[x1+k*cols] = true
+				}
+			}
+		}
+	}
+
+	part2 := 0
+	sand = rocks
+	fin = true
+
+	for {
+		coor := hourglass2(sand, max_y, cols)
+		x := coor[0]
+		y := coor[1]
+
+		sand[x+y*cols] = true
+		part2++
+
+		if x == 500 && y == 0 {
+			break
+		}
+
+	}
+
+	fmt.Println("Part 2:", part2)
 
 }
 
-func draw(grid []cell) {
+func hourglass(rocks []bool, min_x, max_y, cols int) bool {
+	x := 500 - min_x
+	y := 0
+
+	for y <= max_y {
+		if !(rocks[x+(y+1)*cols]) {
+			y++
+			continue
+		}
+		if !(rocks[(x-1)+(y+1)*cols]) {
+			x--
+			y++
+			continue
+		}
+		if !(rocks[(x+1)+(y+1)*cols]) {
+			x++
+			y++
+			continue
+		}
+		rocks[x+y*cols] = true
+		return true
+	}
+
+	return false
+}
+
+func hourglass2(rocks []bool, max_y, cols int) []int {
+	x := 500
+	y := 0
+
+	if rocks[x+y*cols] == true {
+		return []int{x, y}
+	}
+
+	for y <= max_y {
+		if !(rocks[x+(y+1)*cols]) {
+			y++
+			continue
+		}
+		if !(rocks[(x-1)+(y+1)*cols]) {
+			x--
+			y++
+			continue
+		}
+		if !(rocks[(x+1)+(y+1)*cols]) {
+			x++
+			y++
+			continue
+		}
+
+		break
+	}
+
+	return []int{x, y}
+}
+
+func draw(grid []bool, cols, rows int, fill string) {
+
 	for j := 0; j < rows; j++ {
+
 		for i := 0; i < cols; i++ {
-			if grid[i+j*cols].rock {
-				fmt.Print("#")
-			} else if grid[i+j*cols].sand {
-				fmt.Print("O")
+			if grid[i+j*cols] {
+				fmt.Print(fill)
 			} else {
-				fmt.Print(".")
+				fmt.Print(" ")
 			}
 		}
 		fmt.Println()
 	}
-	fmt.Println()
 }
+
 func max(i, j int) int {
 	if i > j {
 		return i
