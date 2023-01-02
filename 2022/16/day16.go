@@ -47,6 +47,7 @@ func main() {
 		next.visit(true)
 		stack = append(stack, current)
 		fmt.Printf("valve = %v, next = %v\n", current.name, next)
+
 		current = next
 	} else if len(stack) > 0 {
 		current = stack[len(stack)-1]

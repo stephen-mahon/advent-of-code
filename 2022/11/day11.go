@@ -63,13 +63,19 @@ func main() {
 	}
 
 	inspections := make([]int, len(monkeys))
+	check := []int{1, 20, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000}
+	index := 0
+
 	for i := 0; i < *rounds; i++ {
 		inspections = monkeyBusiness(monkeys, inspections, items, *worryLevel)
-	}
-
-	fmt.Printf("== After round %v ==\n", *rounds)
-	for i := range inspections {
-		fmt.Printf("Monkey %v inspected items %v times\n", i, inspections[i])
+		if i+1 == check[index] {
+			fmt.Printf("After round %v\n", i+1)
+			for j := range inspections {
+				fmt.Printf("Monkey %v inspected items %v times\n", j, inspections[j])
+			}
+			fmt.Printf("\n")
+			index++
+		}
 	}
 
 	bubbleSort(inspections)
